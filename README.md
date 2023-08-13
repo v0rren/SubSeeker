@@ -1,7 +1,12 @@
-# Getting Started with Create React App
+## SubSeeker: Discover beyond your subreddits
+Dive deeper into the world of Reddit with SubSeeker! Ever wondered if there's more to explore beyond your favourite subreddits? SubSeeker is here to help you on your journey. Simply enter the name of a subreddit you love, and SubSeeker will recommend related subreddits tailored to your interests. With an intuitive interface and smart recommendation algorithms, SubSeeker ensures you're always one step closer to discovering the next fascinating community on Reddit.
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+## Features:
 
+🎯 Tailored recommendations: Get subreddit suggestions based on your specific input.
+⚡ Fast & Intuitive: Efficient search and user-friendly design for an optimal user experience.
+
+Start your Reddit exploration with SubSeeker and discover communities you never knew you needed!
 ## Available Scripts
 
 In the project directory, you can run:
