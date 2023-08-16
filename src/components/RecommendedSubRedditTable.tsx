@@ -5,9 +5,18 @@ interface Props {
 }
 
 const RecommendedSubRedditTable: React.FC<Props> = ({ recommendedSubRedditList }) => {
-    // Step 1: Find the maximum occurrence.
-    const maxOccurrence = Math.max(...recommendedSubRedditList.map(item => item[1]));
-    console.log(recommendedSubRedditList);
+    // Sort the list based on occurrences.
+    const sortedList = [...recommendedSubRedditList].sort((a, b) => b[1] - a[1]);
+    const segmentSize = Math.floor(sortedList.length / 5);
+
+    const getStarRating = (index: number) => {
+        if (index < segmentSize) return 5;
+        if (index < segmentSize * 2) return 4;
+        if (index < segmentSize * 3) return 3;
+        if (index < segmentSize * 4) return 2;
+        return 1;
+    };
+
     return (
         <div className="bg-darkblue p-4">
             <table className="min-w-full divide-y divide-gray-600">
@@ -17,24 +26,22 @@ const RecommendedSubRedditTable: React.FC<Props> = ({ recommendedSubRedditList }
                         SubReddit
                     </th>
                     <th className="px-6 py-3 bg-gray-700 text-left text-xs leading-4 font-medium text-white uppercase tracking-wider">
-                        Recommendation Score
+                        Rating
                     </th>
                 </tr>
                 </thead>
 
                 <tbody className="bg-gray-800 divide-y divide-gray-600">
-                {recommendedSubRedditList.map((item, index) => {
-                    // Step 2: Calculate the percentage score for each subreddit.
-                    const percentageScore = (item[1] / maxOccurrence) * 100;
+                {sortedList.map((item, index) => {
+                    const starRating = getStarRating(index);
 
                     return (
                         <tr key={index}>
                             <td className="px-6 py-4 whitespace-no-wrap text-sm leading-5 text-white">
                                 {item[0]}
                             </td>
-                            <td className="px-6 py-4 whitespace-no-wrap text-sm leading-5 text-white">
-                                {/* Step 3: Display the percentage score. */}
-                                {percentageScore.toFixed(2)}%
+                            <td className="px-6 py-4 whitespace-no-wrap text-sm leading-5 text-white flex items-center">
+                                {"★".repeat(starRating)}{"☆".repeat(5 - starRating)}
                             </td>
                         </tr>
                     );
