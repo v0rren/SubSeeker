@@ -1,32 +1,82 @@
-import {useEffect, useState} from "react";
+// Required imports
+import { useEffect, useState } from "react";
 import SearchBar from "./SearchBar";
-import {Post, searchSubredditPosts, searchSubreddits, searchSubredditsByUser} from "../commons/queries";
+import {
+    Post,
+    searchSubredditPosts,
+    searchSubreddits,
+    searchSubredditsByUser
+} from "../commons/queries";
+import RecommendedSubRedditTable from "./RecommendedSubRedditTable";
+
+// RecommendedSubRedditList component definition
 export const RecommendedSubRedditList = () => {
 
+    // State for the current subreddit
     const [subReddit, setSubReddit] = useState<string>('');
-    useEffect(() => {
 
+    // State for the occurrences of recommended subreddits
+    const [subRedditOccurrences, setSubRedditOccurrences] = useState<[string, number][]>([]);
+
+    // Effect to fetch recommended subreddits whenever the subreddit changes
+    useEffect(() => {
         if (subReddit.trim() !== '') {
 
+            // Function to fetch subreddit data and process it
             const fetchData = async () => {
                 try {
-                    let topAuthors  = await searchSubredditPosts(subReddit,'top');
+                    // Fetch top authors for the given subreddit
+                    let topAuthors = await searchSubredditPosts(subReddit, 'top');
 
-                    const results = await Promise.all(topAuthors.map(author => searchSubredditsByUser(author)));
+                    // Fetch subreddits by each top author
+                    const subRedditMatrix = await Promise.all(
+                        topAuthors.map(author => searchSubredditsByUser(author))
+                    );
 
-                    console.log(results);
+                    // Object to track the occurrences of each subreddit
+                    const subRedditOccurrencesMap: { [key: string]: number } = {};
+
+                    // Populate the occurrences map
+                    subRedditMatrix.forEach((list) => {
+                        list.forEach((str) => {
+                            if (subRedditOccurrencesMap[str]) {
+                                subRedditOccurrencesMap[str] += 1;
+                            } else {
+                                subRedditOccurrencesMap[str] = 1;
+                            }
+                        });
+                    });
+
+                    // Order the subreddits by their occurrences
+                    const orderedSubRedditOccurrences = Object.entries(subRedditOccurrencesMap).sort(
+                        (a, b) => b[1] - a[1]
+                    );
+
+                    // Set the ordered occurrences to state
+                    setSubRedditOccurrences(orderedSubRedditOccurrences);
+
+
+
                 } catch (error) {
                     console.error("There was an error fetching the data", error);
                 }
             };
 
-            fetchData();
-
+            // Invoke the fetchData function
+            fetchData().catch(error => {
+                console.error("Unexpected error in fetchData:", error);
+            });;
         }
-    }, [subReddit]);
-    return (
+    }, [subReddit]); // The effect depends on the subReddit state
 
-        <SearchBar onInputSubmit={setSubReddit}></SearchBar>
-        
+    // Render the component
+    return (
+        <div>
+            {/* SearchBar to input subreddit and fetch recommendations */}
+            <SearchBar onInputSubmit={setSubReddit}></SearchBar>
+
+            {/* Table displaying the recommended subreddits */}
+            <RecommendedSubRedditTable recommendedSubRedditList={subRedditOccurrences}></RecommendedSubRedditTable>
+        </div>
     );
 };
