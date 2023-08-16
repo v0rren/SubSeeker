@@ -35,7 +35,7 @@ export async function searchSubreddits(subreddit: string): Promise<any[]> {
  */
 export async function searchSubredditPosts(subreddit: string, searchType: string): Promise<string[]> {
     try {
-        const res = await axios.get(`https://www.reddit.com/r/${subreddit}/${searchType}.json?limit=2`);
+        const res = await axios.get(`https://www.reddit.com/r/${subreddit}/${searchType}.json?limit=50`);
 
         // Extract post details from the response
         const posts: Post[] = res.data.data.children.map((child: any) => ({

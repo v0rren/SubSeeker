@@ -39,10 +39,14 @@ export const RecommendedSubRedditList = () => {
                     // Populate the occurrences map
                     subRedditMatrix.forEach((list) => {
                         list.forEach((str) => {
-                            if (subRedditOccurrencesMap[str]) {
-                                subRedditOccurrencesMap[str] += 1;
-                            } else {
-                                subRedditOccurrencesMap[str] = 1;
+                            // exclude input subreddit from the map
+                            if(str.toLowerCase() != subReddit.toLowerCase()) {
+                                console.log(str);
+                                if (subRedditOccurrencesMap[str]) {
+                                    subRedditOccurrencesMap[str] += 1;
+                                } else {
+                                    subRedditOccurrencesMap[str] = 1;
+                                }
                             }
                         });
                     });
