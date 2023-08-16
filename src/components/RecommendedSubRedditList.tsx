@@ -27,5 +27,6 @@ export const RecommendedSubRedditList = () => {
     return (
 
         <SearchBar onInputSubmit={setSubReddit}></SearchBar>
+        
     );
 };
