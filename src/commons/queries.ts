@@ -54,13 +54,13 @@ export async function searchSubredditPosts(subreddit: string, searchType: string
 }
 
 /**
- * Searches for subreddits where a specific user has made comments.
+ * Searches for subreddits where a specific user has made posts.
  * @param user - The username to search for.
  * @returns An array of subreddit names.
  */
 export async function searchSubredditsByUser(user: string): Promise<string[]> {
     try {
-        const res = await axios.get(`https://www.reddit.com/user/${user}/comments.json`);
+        const res = await axios.get(`https://www.reddit.com/user/${user}/submitted.json`);
 
         // 1. Extract subreddit names from the user's comments
         const subRedditNames: string[] = res.data.data.children.map((x: any) => x.data.subreddit);

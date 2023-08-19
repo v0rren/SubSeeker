@@ -1,5 +1,4 @@
-// Required imports
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import SearchBar from "./SearchBar";
 import {
     Post,
@@ -9,57 +8,59 @@ import {
 } from "../commons/queries";
 import RecommendedSubRedditTable from "./RecommendedSubRedditTable";
 
-// RecommendedSubRedditList component definition
 export const RecommendedSubRedditList = () => {
-
     // State for the current subreddit
     const [subReddit, setSubReddit] = useState<string>('');
 
-    // State for the occurrences of recommended subreddits
-    const [subRedditOccurrences, setSubRedditOccurrences] = useState<[string, number][]>([]);
+    // Updated state for the occurrences and author overlap of recommended subreddits
+    const [subRedditOccurrences, setSubRedditOccurrences] = useState<{ subreddit: string, occurrence: number, authorOverlap: number }[]>([]);
 
     // Effect to fetch recommended subreddits whenever the subreddit changes
     useEffect(() => {
         if (subReddit.trim() !== '') {
-
-            // Function to fetch subreddit data and process it
             const fetchData = async () => {
                 try {
                     // Fetch top authors for the given subreddit
-                    let topAuthors = await searchSubredditPosts(subReddit, 'top');
+                    let topAuthors = await searchSubredditPosts(subReddit, 'hot');
 
                     // Fetch subreddits by each top author
                     const subRedditMatrix = await Promise.all(
                         topAuthors.map(author => searchSubredditsByUser(author))
                     );
 
-                    // Object to track the occurrences of each subreddit
-                    const subRedditOccurrencesMap: { [key: string]: number } = {};
+                    // Object to track the occurrences and author overlap of each subreddit
+                    const subRedditOccurrencesMap: { [key: string]: { count: number, authorOverlap: number } } = {};
 
                     // Populate the occurrences map
-                    subRedditMatrix.forEach((list) => {
+                    subRedditMatrix.forEach((list, authorIndex) => {
+                        let uniqueSubredditsForAuthor = new Set<string>();  // To ensure we don't double-count for one author
+
                         list.forEach((str) => {
-                            // exclude input subreddit from the map
-                            if(str.toLowerCase() != subReddit.toLowerCase()) {
-                                console.log(str);
-                                if (subRedditOccurrencesMap[str]) {
-                                    subRedditOccurrencesMap[str] += 1;
+                            if(str.toLowerCase() !== subReddit.toLowerCase() && !uniqueSubredditsForAuthor.has(str)) {
+                                if (!subRedditOccurrencesMap[str]) {
+                                    subRedditOccurrencesMap[str] = { count: 1, authorOverlap: 1 };
                                 } else {
-                                    subRedditOccurrencesMap[str] = 1;
+                                    subRedditOccurrencesMap[str].count += 1;
+                                    subRedditOccurrencesMap[str].authorOverlap += 1;
                                 }
+                                uniqueSubredditsForAuthor.add(str);
                             }
                         });
                     });
 
+                    // Convert authorOverlap into a percentage
+                    const totalAuthors = topAuthors.length;
+                    Object.values(subRedditOccurrencesMap).forEach(value => {
+                        value.authorOverlap = (value.authorOverlap / totalAuthors) * 100;
+                    });
+
                     // Order the subreddits by their occurrences
                     const orderedSubRedditOccurrences = Object.entries(subRedditOccurrencesMap).sort(
-                        (a, b) => b[1] - a[1]
-                    );
+                        (a, b) => b[1].count - a[1].count
+                    ).map(([subreddit, data]) => ({ subreddit, occurrence: data.count, authorOverlap: data.authorOverlap }));
 
                     // Set the ordered occurrences to state
                     setSubRedditOccurrences(orderedSubRedditOccurrences);
-
-
 
                 } catch (error) {
                     console.error("There was an error fetching the data", error);
@@ -69,11 +70,10 @@ export const RecommendedSubRedditList = () => {
             // Invoke the fetchData function
             fetchData().catch(error => {
                 console.error("Unexpected error in fetchData:", error);
-            });;
+            });
         }
     }, [subReddit]); // The effect depends on the subReddit state
 
-    // Render the component
     return (
         <div>
             {/* SearchBar to input subreddit and fetch recommendations */}
@@ -84,3 +84,5 @@ export const RecommendedSubRedditList = () => {
         </div>
     );
 };
+
+export default RecommendedSubRedditList;
