@@ -28,9 +28,6 @@ const RecommendedSubRedditTable: React.FC<Props> = ({ recommendedSubRedditList }
                     <th className="px-6 py-3 bg-gray-700 text-left text-xs leading-4 font-medium text-white uppercase tracking-wider">
                         Rating
                     </th>
-                    <th className="px-6 py-3 bg-gray-700 text-left text-xs leading-4 font-medium text-white uppercase tracking-wider">
-                        Author Overlap
-                    </th>
                 </tr>
                 </thead>
 
@@ -45,9 +42,6 @@ const RecommendedSubRedditTable: React.FC<Props> = ({ recommendedSubRedditList }
                             </td>
                             <td className="px-6 py-4 whitespace-no-wrap text-sm leading-5 text-white flex items-center">
                                 {"★".repeat(starRating)}{"☆".repeat(5 - starRating)}
-                            </td>
-                            <td className="px-6 py-4 whitespace-no-wrap text-sm leading-5 text-white">
-                                {item.authorOverlap}%
                             </td>
                         </tr>
                     );
